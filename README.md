@@ -1,36 +1,31 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MeloKado
 
-## Getting Started
+Tu racontes. Nous chantons.
 
-First, run the development server:
+Plateforme de création musicale personnalisée par IA pour l'Afrique francophone (priorité
+Côte d'Ivoire). Voir [ARCHITECTURE.md](./ARCHITECTURE.md) pour le détail technique et l'état
+d'avancement réel.
+
+## Démarrer en local
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # renseigner au minimum OPENAI_API_KEY pour tester les paroles
+npm run dev -- -p 3004
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Sans `.env.local` renseigné, l'app tourne quand même : la landing page et le tunnel de
+création (`/creer`) utilisent des données de repli (voir `src/lib/data/reference.ts`), et
+chaque étape qui dépend d'un provider externe échoue proprement avec un message explicite
+plutôt que de simuler un succès.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `npm run dev` — serveur de développement (Turbopack)
+- `npm run build` — build de production
+- `npm run lint` — ESLint
 
-## Learn More
+## Base de données
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Le schéma complet est dans `supabase/migrations/0001_base_schema.sql` — à coller dans le SQL
+Editor d'un nouveau projet Supabase (aucun projet n'est encore connecté).
