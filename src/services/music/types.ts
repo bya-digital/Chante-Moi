@@ -5,8 +5,16 @@ export type GenerationStatus =
   | "FAILED"
   | "CANCELLED";
 
+export interface MusicGenerationLyricsSection {
+  kind: string;
+  text: string;
+}
+
 export interface MusicGenerationInput {
+  /** Texte complet, utilisé par les providers qui ne prennent qu'un prompt libre */
   lyrics: string;
+  /** Paroles structurées par section — utilisées par les providers qui le supportent (ex. ElevenLabs composition_plan) */
+  sections?: MusicGenerationLyricsSection[];
   title: string;
   musicStyle: string;
   emotion: string;
@@ -19,6 +27,12 @@ export interface MusicGenerationHandle {
   /** Identifiant côté provider — à stocker dans generation_jobs.provider_job_id */
   providerJobId: string;
   providerId: string;
+  /**
+   * Certains providers (ElevenLabs Music) sont synchrones : le résultat final est déjà
+   * disponible à la fin de startGeneration(). Quand ce champ est présent, l'appelant doit
+   * finaliser immédiatement plutôt que de passer par le polling checkStatus().
+   */
+  immediateResult?: MusicGenerationStatusResult;
 }
 
 export interface MusicGenerationStatusResult {

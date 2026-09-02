@@ -15,7 +15,7 @@ cadeau → un souvenir partageable. Pas un générateur de musique générique :
 | Backend | Supabase (Postgres + Auth + Storage) | RLS natif, pas de serveur à gérer |
 | IA texte | Abstraction `AIProvider` (OpenAI principal, Anthropic fallback) | Aucun composant métier ne parle à un SDK IA directement |
 | Voix → texte | Abstraction `SpeechProvider` (OpenAI Whisper, Deepgram) | Mode vocal sans dépendre d'un seul fournisseur |
-| Texte → chanson | Abstraction `MusicProvider` — **aucun provider vérifié en prod actuellement**, voir `src/services/music/README.md` |
+| Texte → chanson | Abstraction `MusicProvider` — ElevenLabs (Eleven Music) implémenté, non testé en réel ; voir `src/services/music/README.md` |
 | Paiement | `PaymentManager` + `PaymentRouter` (CinetPay, Stripe, Paystack, Flutterwave implémentés ; PayDunya/Kkiapay/IkePay/PayPal en stub) |
 | Stockage | Supabase Storage (buckets `audio`, `video`, `covers`, `user-uploads`, `voice-recordings`) |
 | Notifications | Resend (email), WhatsApp Cloud API (stub tant que le numéro pro n'est pas vérifié) |
@@ -41,7 +41,9 @@ est déjà `SUCCESS` (idempotence).
 ## Ce qui est RÉELLEMENT prêt (2026-09-02)
 - Schéma Postgres complet (`supabase/migrations/0001_base_schema.sql`) avec RLS sur toutes les
   tables utilisateur, seed des référentiels (occasions, émotions, styles, voix, pays, devises,
-  provider_configs, pricing).
+  provider_configs, pricing). **Appliqué à un vrai projet Supabase et vérifié de bout en bout**
+  (inscription, connexion, création de commande avec RLS, routage de paiement) — voir
+  `project_melokado_status` en mémoire pour le détail de la vérification.
 - Auth Supabase (email/mot de passe) — `/connexion`, `/inscription`.
 - Landing page complète (`/`).
 - Tunnel de création complet (`/creer`) : 8 étapes, mode texte + mode vocal (MediaRecorder),
@@ -55,15 +57,15 @@ est déjà `SUCCESS` (idempotence).
 - Providers paiement CinetPay/Stripe/Paystack/Flutterwave — implémentés d'après doc connue,
   **à smoke-tester en sandbox avant toute mise en production** (aucune clé réelle n'existe
   encore). PayDunya/Kkiapay/IkePay/PayPal en stub explicite.
+- **Moteur musical : ElevenLabs (Eleven Music) implémenté** (`src/services/music/elevenlabs-provider.ts`)
+  d'après documentation officielle vérifiée (endpoint, header `xi-api-key`, `composition_plan`
+  par section). Provider synchrone — génère et renvoie l'audio dans la même requête, uploadé
+  vers Supabase Storage. **Non testé avec une vraie clé API** — voir `src/services/music/README.md`.
 
 ## Ce qui N'EST PAS prêt (volontairement, jamais simulé)
-- **Aucun moteur musical texte→chanson n'est branché** — voir `src/services/music/README.md`.
-  C'est le risque n°1 du produit : aucune API "paroles → chanson chantée" fiable et publique
-  n'a été identifiée à ce jour (Suno n'a pas d'API officielle). Le tunnel de création dégrade
-  proprement (message d'erreur explicite) plutôt que de fabriquer un faux succès.
+- Le moteur musical ElevenLabs n'a jamais généré une vraie chanson (pas de clé API) — le code
+  suit la doc officielle mais reste à valider en conditions réelles avant toute mise en prod.
 - Page résultat, page cadeau (`/gift/[slug]`), historique (`/mes-creations`), admin, vidéo.
-- Aucun compte Supabase/clé API réel n'est encore configuré pour MeloKado — tout tourne en
-  local avec des données de repli (`src/lib/data/reference.ts`) tant que `.env.local` est vide.
 
 ## Conventions
 UUID partout, `timestamptz` partout, RLS activé sur toutes les tables dès la création. Policies

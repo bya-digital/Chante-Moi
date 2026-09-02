@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MusicManager } from "@/services/music/manager";
+import { finalizeMusicGeneration } from "@/services/music/finalize";
 
 /**
  * Démarre une génération musicale asynchrone (section 52) : ne bloque jamais la requête HTTP
@@ -27,7 +28,7 @@ export async function POST(request: Request) {
 
   const { data: lyrics } = await supabase
     .from("lyrics")
-    .select("full_text")
+    .select("full_text, sections")
     .eq("song_id", song.id)
     .order("version", { ascending: false })
     .limit(1)
@@ -45,8 +46,13 @@ export async function POST(request: Request) {
 
   try {
     const music = new MusicManager();
+    const sections = Array.isArray(lyrics.sections)
+      ? (lyrics.sections as { kind: string; text: string }[])
+      : undefined;
+
     const handle = await music.startGeneration({
       lyrics: lyrics.full_text,
+      sections,
       title: song.title ?? "Ma chanson",
       musicStyle: body.musicStyle ?? "",
       emotion: body.emotion ?? "",
@@ -61,9 +67,20 @@ export async function POST(request: Request) {
 
     await admin.from("generation_jobs").insert({
       generation_id: generation.id,
-      status: "PROCESSING",
+      status: handle.immediateResult ? handle.immediateResult.status : "PROCESSING",
       provider_job_id: handle.providerJobId,
     });
+
+    if (handle.immediateResult) {
+      // Provider synchrone (ex. ElevenLabs) : le résultat est déjà connu, on finalise tout de
+      // suite plutôt que de renvoyer un statut PROCESSING que le frontend devrait poller.
+      await finalizeMusicGeneration({ generationId: generation.id, songId: song.id, result: handle.immediateResult });
+      return NextResponse.json({
+        generationId: generation.id,
+        status: handle.immediateResult.status,
+        audioUrl: handle.immediateResult.audioUrl,
+      });
+    }
 
     await admin.from("songs").update({ status: "processing" }).eq("id", song.id);
 

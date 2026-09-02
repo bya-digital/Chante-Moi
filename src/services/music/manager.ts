@@ -1,4 +1,5 @@
 import "server-only";
+import { ElevenLabsMusicProvider } from "./elevenlabs-provider";
 import { SunoProvider } from "./suno-provider";
 import type {
   MusicGenerationHandle,
@@ -21,7 +22,7 @@ export class MusicManager {
   private statusChecker: ProviderStatusChecker;
 
   constructor(providers?: MusicProvider[], statusChecker?: ProviderStatusChecker) {
-    this.providers = providers ?? [new SunoProvider()];
+    this.providers = providers ?? [new ElevenLabsMusicProvider(), new SunoProvider()];
     this.statusChecker = statusChecker ?? alwaysActive;
   }
 

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { MusicManager } from "@/services/music/manager";
+import { finalizeMusicGeneration } from "@/services/music/finalize";
 
 export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
@@ -41,30 +41,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
     });
 
     if (statusResult.status !== "PROCESSING" && statusResult.status !== "PENDING") {
-      const admin = createAdminClient();
-      await admin
-        .from("generations")
-        .update({
-          status: statusResult.status,
-          error_message: statusResult.errorMessage ?? null,
-          completed_at: new Date().toISOString(),
-        })
-        .eq("id", id);
-
-      if (statusResult.status === "COMPLETED") {
-        await admin
-          .from("songs")
-          .update({
-            status: "completed",
-            audio_url: statusResult.audioUrl,
-            cover_url: statusResult.coverUrl,
-            duration_seconds: statusResult.durationSeconds,
-          })
-          .eq("id", generation.song_id);
-      } else if (statusResult.status === "FAILED") {
-        // Remboursement automatique du crédit consommé (section 13/54)
-        await admin.from("songs").update({ status: "failed" }).eq("id", generation.song_id);
-      }
+      await finalizeMusicGeneration({ generationId: id, songId: generation.song_id, result: statusResult });
     }
 
     return NextResponse.json({
