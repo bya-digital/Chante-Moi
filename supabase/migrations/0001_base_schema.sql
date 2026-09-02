@@ -30,6 +30,7 @@ as $$
   select exists (select 1 from public.admin_users a where a.id = uid);
 $$;
 
+drop policy if exists "admin_users_self_read" on public.admin_users;
 create policy "admin_users_self_read" on public.admin_users
   for select using (id = auth.uid() or public.is_admin(auth.uid()));
 
@@ -127,20 +128,34 @@ alter table public.music_styles enable row level security;
 alter table public.voices enable row level security;
 alter table public.provider_configs enable row level security;
 
+drop policy if exists "reference_public_read" on public.countries;
 create policy "reference_public_read" on public.countries for select using (true);
+drop policy if exists "reference_public_read" on public.currencies;
 create policy "reference_public_read" on public.currencies for select using (true);
+drop policy if exists "reference_public_read" on public.occasions;
 create policy "reference_public_read" on public.occasions for select using (active or public.is_admin(auth.uid()));
+drop policy if exists "reference_public_read" on public.emotions;
 create policy "reference_public_read" on public.emotions for select using (active or public.is_admin(auth.uid()));
+drop policy if exists "reference_public_read" on public.music_styles;
 create policy "reference_public_read" on public.music_styles for select using (active or public.is_admin(auth.uid()));
+drop policy if exists "reference_public_read" on public.voices;
 create policy "reference_public_read" on public.voices for select using (active or public.is_admin(auth.uid()));
+drop policy if exists "provider_configs_admin_only" on public.provider_configs;
 create policy "provider_configs_admin_only" on public.provider_configs for select using (public.is_admin(auth.uid()));
 
+drop policy if exists "reference_admin_write" on public.countries;
 create policy "reference_admin_write" on public.countries for all using (public.is_admin(auth.uid())) with check (public.is_admin(auth.uid()));
+drop policy if exists "reference_admin_write" on public.currencies;
 create policy "reference_admin_write" on public.currencies for all using (public.is_admin(auth.uid())) with check (public.is_admin(auth.uid()));
+drop policy if exists "reference_admin_write" on public.occasions;
 create policy "reference_admin_write" on public.occasions for all using (public.is_admin(auth.uid())) with check (public.is_admin(auth.uid()));
+drop policy if exists "reference_admin_write" on public.emotions;
 create policy "reference_admin_write" on public.emotions for all using (public.is_admin(auth.uid())) with check (public.is_admin(auth.uid()));
+drop policy if exists "reference_admin_write" on public.music_styles;
 create policy "reference_admin_write" on public.music_styles for all using (public.is_admin(auth.uid())) with check (public.is_admin(auth.uid()));
+drop policy if exists "reference_admin_write" on public.voices;
 create policy "reference_admin_write" on public.voices for all using (public.is_admin(auth.uid())) with check (public.is_admin(auth.uid()));
+drop policy if exists "provider_configs_admin_write" on public.provider_configs;
 create policy "provider_configs_admin_write" on public.provider_configs for all using (public.is_admin(auth.uid())) with check (public.is_admin(auth.uid()));
 
 -- =========================================================
@@ -161,10 +176,14 @@ create table if not exists public.profiles (
 
 alter table public.profiles enable row level security;
 
+drop policy if exists "profiles_self_read" on public.profiles;
 create policy "profiles_self_read" on public.profiles for select using (id = auth.uid() or public.is_admin(auth.uid()));
+drop policy if exists "profiles_self_write" on public.profiles;
 create policy "profiles_self_write" on public.profiles for update using (id = auth.uid()) with check (id = auth.uid());
+drop policy if exists "profiles_self_insert" on public.profiles;
 create policy "profiles_self_insert" on public.profiles for insert with check (id = auth.uid());
 
+drop trigger if exists profiles_set_updated_at on public.profiles;
 create trigger profiles_set_updated_at before update on public.profiles
   for each row execute function public.set_updated_at();
 
@@ -187,9 +206,13 @@ create table if not exists public.orders (
 );
 
 alter table public.orders enable row level security;
+drop policy if exists "orders_owner_read" on public.orders;
 create policy "orders_owner_read" on public.orders for select using (user_id = auth.uid() or public.is_admin(auth.uid()));
+drop policy if exists "orders_owner_write" on public.orders;
 create policy "orders_owner_write" on public.orders for insert with check (user_id = auth.uid());
+drop policy if exists "orders_owner_update" on public.orders;
 create policy "orders_owner_update" on public.orders for update using (user_id = auth.uid() or public.is_admin(auth.uid()));
+drop trigger if exists orders_set_updated_at on public.orders;
 create trigger orders_set_updated_at before update on public.orders
   for each row execute function public.set_updated_at();
 
@@ -208,8 +231,10 @@ create table if not exists public.payment_attempts (
 );
 
 alter table public.payment_attempts enable row level security;
+drop policy if exists "payment_attempts_owner_read" on public.payment_attempts;
 create policy "payment_attempts_owner_read" on public.payment_attempts for select
   using (exists (select 1 from public.orders o where o.id = order_id and (o.user_id = auth.uid() or public.is_admin(auth.uid()))));
+drop trigger if exists payment_attempts_set_updated_at on public.payment_attempts;
 create trigger payment_attempts_set_updated_at before update on public.payment_attempts
   for each row execute function public.set_updated_at();
 
@@ -225,6 +250,7 @@ create table if not exists public.credit_transactions (
 );
 
 alter table public.credit_transactions enable row level security;
+drop policy if exists "credit_tx_owner_read" on public.credit_transactions;
 create policy "credit_tx_owner_read" on public.credit_transactions for select using (user_id = auth.uid() or public.is_admin(auth.uid()));
 
 -- =========================================================
@@ -253,12 +279,18 @@ create table if not exists public.songs (
 );
 
 alter table public.songs enable row level security;
+drop policy if exists "songs_owner_read" on public.songs;
 create policy "songs_owner_read" on public.songs for select using (user_id = auth.uid() or public.is_admin(auth.uid()));
+drop policy if exists "songs_owner_write" on public.songs;
 create policy "songs_owner_write" on public.songs for insert with check (user_id = auth.uid());
+drop policy if exists "songs_owner_update" on public.songs;
 create policy "songs_owner_update" on public.songs for update using (user_id = auth.uid() or public.is_admin(auth.uid()));
+drop trigger if exists songs_set_updated_at on public.songs;
 create trigger songs_set_updated_at before update on public.songs
   for each row execute function public.set_updated_at();
 
+alter table public.credit_transactions
+  drop constraint if exists credit_transactions_song_fk;
 alter table public.credit_transactions
   add constraint credit_transactions_song_fk foreign key (song_id) references public.songs(id);
 
@@ -275,6 +307,7 @@ create table if not exists public.lyrics (
 );
 
 alter table public.lyrics enable row level security;
+drop policy if exists "lyrics_owner_read" on public.lyrics;
 create policy "lyrics_owner_read" on public.lyrics for select
   using (exists (select 1 from public.songs s where s.id = song_id and (s.user_id = auth.uid() or public.is_admin(auth.uid()))));
 
@@ -287,6 +320,7 @@ create table if not exists public.song_versions (
 );
 
 alter table public.song_versions enable row level security;
+drop policy if exists "song_versions_owner_read" on public.song_versions;
 create policy "song_versions_owner_read" on public.song_versions for select
   using (exists (select 1 from public.songs s where s.id = song_id and (s.user_id = auth.uid() or public.is_admin(auth.uid()))));
 
@@ -303,6 +337,7 @@ create table if not exists public.generations (
 );
 
 alter table public.generations enable row level security;
+drop policy if exists "generations_owner_read" on public.generations;
 create policy "generations_owner_read" on public.generations for select
   using (exists (select 1 from public.songs s where s.id = song_id and (s.user_id = auth.uid() or public.is_admin(auth.uid()))));
 
@@ -318,11 +353,13 @@ create table if not exists public.generation_jobs (
 );
 
 alter table public.generation_jobs enable row level security;
+drop policy if exists "generation_jobs_owner_read" on public.generation_jobs;
 create policy "generation_jobs_owner_read" on public.generation_jobs for select
   using (exists (
     select 1 from public.generations g join public.songs s on s.id = g.song_id
     where g.id = generation_id and (s.user_id = auth.uid() or public.is_admin(auth.uid()))
   ));
+drop trigger if exists generation_jobs_set_updated_at on public.generation_jobs;
 create trigger generation_jobs_set_updated_at before update on public.generation_jobs
   for each row execute function public.set_updated_at();
 
@@ -339,6 +376,7 @@ create table if not exists public.generation_costs (
 );
 
 alter table public.generation_costs enable row level security;
+drop policy if exists "generation_costs_admin_only" on public.generation_costs;
 create policy "generation_costs_admin_only" on public.generation_costs for select using (public.is_admin(auth.uid()));
 
 -- =========================================================
@@ -356,9 +394,12 @@ create table if not exists public.gift_pages (
 );
 
 alter table public.gift_pages enable row level security;
+drop policy if exists "gift_pages_public_read" on public.gift_pages;
 create policy "gift_pages_public_read" on public.gift_pages for select using (true);
+drop policy if exists "gift_pages_owner_write" on public.gift_pages;
 create policy "gift_pages_owner_write" on public.gift_pages for insert
   with check (exists (select 1 from public.songs s where s.id = song_id and s.user_id = auth.uid()));
+drop policy if exists "gift_pages_owner_update" on public.gift_pages;
 create policy "gift_pages_owner_update" on public.gift_pages for update
   using (exists (select 1 from public.songs s where s.id = song_id and (s.user_id = auth.uid() or public.is_admin(auth.uid()))));
 
@@ -372,8 +413,11 @@ create table if not exists public.media_files (
 );
 
 alter table public.media_files enable row level security;
+drop policy if exists "media_files_owner_read" on public.media_files;
 create policy "media_files_owner_read" on public.media_files for select using (user_id = auth.uid() or public.is_admin(auth.uid()));
+drop policy if exists "media_files_owner_write" on public.media_files;
 create policy "media_files_owner_write" on public.media_files for insert with check (user_id = auth.uid());
+drop policy if exists "media_files_owner_delete" on public.media_files;
 create policy "media_files_owner_delete" on public.media_files for delete using (user_id = auth.uid());
 
 create table if not exists public.favorites (
@@ -385,6 +429,7 @@ create table if not exists public.favorites (
 );
 
 alter table public.favorites enable row level security;
+drop policy if exists "favorites_owner_all" on public.favorites;
 create policy "favorites_owner_all" on public.favorites for all using (user_id = auth.uid()) with check (user_id = auth.uid());
 
 -- =========================================================
@@ -399,6 +444,7 @@ create table if not exists public.referrals (
 );
 
 alter table public.referrals enable row level security;
+drop policy if exists "referrals_owner_read" on public.referrals;
 create policy "referrals_owner_read" on public.referrals for select using (referrer_user_id = auth.uid() or public.is_admin(auth.uid()));
 
 create table if not exists public.referral_rewards (
@@ -412,6 +458,7 @@ create table if not exists public.referral_rewards (
 );
 
 alter table public.referral_rewards enable row level security;
+drop policy if exists "referral_rewards_owner_read" on public.referral_rewards;
 create policy "referral_rewards_owner_read" on public.referral_rewards for select
   using (exists (select 1 from public.referrals r where r.id = referral_id and (r.referrer_user_id = auth.uid() or public.is_admin(auth.uid()))));
 
@@ -423,6 +470,7 @@ create table if not exists public.referral_clicks (
 );
 
 alter table public.referral_clicks enable row level security;
+drop policy if exists "referral_clicks_admin_only" on public.referral_clicks;
 create policy "referral_clicks_admin_only" on public.referral_clicks for select using (public.is_admin(auth.uid()));
 
 -- =========================================================
@@ -439,6 +487,7 @@ create table if not exists public.notifications (
 );
 
 alter table public.notifications enable row level security;
+drop policy if exists "notifications_owner_read" on public.notifications;
 create policy "notifications_owner_read" on public.notifications for select using (user_id = auth.uid() or public.is_admin(auth.uid()));
 
 create table if not exists public.provider_logs (
@@ -457,6 +506,7 @@ create table if not exists public.provider_logs (
 );
 
 alter table public.provider_logs enable row level security;
+drop policy if exists "provider_logs_admin_only" on public.provider_logs;
 create policy "provider_logs_admin_only" on public.provider_logs for select using (public.is_admin(auth.uid()));
 
 create table if not exists public.admin_logs (
@@ -470,6 +520,7 @@ create table if not exists public.admin_logs (
 );
 
 alter table public.admin_logs enable row level security;
+drop policy if exists "admin_logs_admin_only" on public.admin_logs;
 create policy "admin_logs_admin_only" on public.admin_logs for select using (public.is_admin(auth.uid()));
 
 create table if not exists public.settings (
@@ -479,7 +530,9 @@ create table if not exists public.settings (
 );
 
 alter table public.settings enable row level security;
+drop policy if exists "settings_public_read" on public.settings;
 create policy "settings_public_read" on public.settings for select using (true);
+drop policy if exists "settings_admin_write" on public.settings;
 create policy "settings_admin_write" on public.settings for all using (public.is_admin(auth.uid())) with check (public.is_admin(auth.uid()));
 
 -- =========================================================
@@ -513,12 +566,12 @@ insert into public.occasions (slug, name, icon, sort_order) values
   ('maman', 'Pour maman', 'flower-2', 5),
   ('papa', 'Pour papa', 'award', 6),
   ('enfant', 'Pour un enfant', 'smile', 7),
-  ('hommage', 'Hommage', 'candle', 8),
+  ('hommage', 'Hommage', 'flame', 8),
   ('merci', 'Merci', 'hand-heart', 9),
   ('reussite', 'Réussite', 'trophy', 10),
   ('fete', 'Fête', 'party-popper', 11),
   ('gospel', 'Gospel', 'church', 12),
-  ('priere', 'Prière', 'hands-praying', 13),
+  ('priere', 'Prière', 'book-open-text', 13),
   ('demande-mariage', 'Demande en mariage', 'gem', 14),
   ('saint-valentin', 'Saint-Valentin', 'heart-handshake', 15),
   ('noel', 'Noël', 'gift', 16),

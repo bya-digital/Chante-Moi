@@ -27,13 +27,20 @@ export function AuthForm({ mode }: { mode: "connexion" | "inscription" }) {
 
     try {
       if (mode === "inscription") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: { data: { full_name: fullName } },
         });
         if (error) throw error;
-        toast.success("Compte créé. Vérifiez votre email si une confirmation est requise.");
+
+        if (!data.session) {
+          // Confirmation email requise côté projet Supabase — pas de session tant que le lien
+          // n'est pas cliqué, donc pas de redirection comme si l'utilisateur était connecté.
+          toast.success("Compte créé. Vérifiez votre boîte mail pour confirmer votre compte avant de continuer.");
+          setLoading(false);
+          return;
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
