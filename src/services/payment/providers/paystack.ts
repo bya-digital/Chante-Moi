@@ -46,7 +46,7 @@ export class PaystackProvider implements PaymentProvider {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        email: input.customerEmail ?? "client@melokado.app",
+        email: input.customerEmail ?? "client@chante-moi.app",
         amount: Math.round(input.amount * 100),
         currency: input.currency,
         reference: input.orderId,

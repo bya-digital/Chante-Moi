@@ -47,7 +47,7 @@
   --radius-3xl: calc(var(--radius) * 2.2);
 }
 
-/* MeloKado — identité chaleureuse et émotionnelle : magenta profond + or chaud (cadeau) */
+/* Chante-Moi — identité chaleureuse et émotionnelle : magenta profond + or chaud (cadeau) */
 :root {
   --background: oklch(0.99 0.006 60);
   --foreground: oklch(0.16 0.03 320);

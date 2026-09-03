@@ -22,7 +22,7 @@ export async function SiteHeader() {
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
             <Music2 className="h-4 w-4" />
           </span>
-          MeloKado
+          Chante-Moi
         </Link>
 
         <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">

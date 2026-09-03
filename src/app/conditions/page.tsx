@@ -17,7 +17,7 @@ export default function ConditionsPage() {
             <section>
               <h2 className="font-heading text-lg font-semibold">Le service</h2>
               <p className="mt-2">
-                MeloKado transforme une histoire que vous nous confiez en chanson personnalisée, générée par
+                Chante-Moi transforme une histoire que vous nous confiez en chanson personnalisée, générée par
                 intelligence artificielle. Vous restez responsable de l&apos;exactitude et de la légalité du
                 contenu que vous fournissez (histoire, noms, photos).
               </p>
@@ -52,7 +52,7 @@ export default function ConditionsPage() {
             <section>
               <h2 className="font-heading text-lg font-semibold">Contenu interdit</h2>
               <p className="mt-2">
-                Vous ne pouvez pas utiliser MeloKado pour créer du contenu diffamatoire, haineux, ou qui
+                Vous ne pouvez pas utiliser Chante-Moi pour créer du contenu diffamatoire, haineux, ou qui
                 usurpe l&apos;identité d&apos;un tiers sans son consentement. Nous nous réservons le droit de
                 refuser ou de supprimer toute création qui enfreint ces règles.
               </p>
@@ -61,7 +61,7 @@ export default function ConditionsPage() {
             <section>
               <h2 className="font-heading text-lg font-semibold">Disponibilité</h2>
               <p className="mt-2">
-                MeloKado s&apos;appuie sur des fournisseurs tiers (IA, génération musicale, paiement). Une
+                Chante-Moi s&apos;appuie sur des fournisseurs tiers (IA, génération musicale, paiement). Une
                 interruption ponctuelle d&apos;un de ces services peut retarder une création — nous mettons tout
                 en œuvre pour limiter cet impact.
               </p>

@@ -7,7 +7,7 @@ import { GiftView } from "@/components/gift/gift-view";
 export async function generateMetadata({ params }: PageProps<"/gift/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   return {
-    title: `Pour ${slug} — MeloKado`,
+    title: `Pour ${slug} — Chante-Moi`,
     openGraph: { title: "Une chanson créée spécialement pour toi ❤️" },
   };
 }

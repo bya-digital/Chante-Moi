@@ -38,7 +38,7 @@ export function GiftView({ giftPage, song, lyricsText }: GiftViewProps) {
         <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground">
           <Music2 className="h-4 w-4" />
         </span>
-        <p className="mt-3 text-xs font-medium tracking-wide text-muted-foreground uppercase">Un cadeau MeloKado</p>
+        <p className="mt-3 text-xs font-medium tracking-wide text-muted-foreground uppercase">Un cadeau Chante-Moi</p>
 
         {giftPage.photo_url && (
           <div
@@ -84,7 +84,7 @@ export function GiftView({ giftPage, song, lyricsText }: GiftViewProps) {
           </details>
         )}
 
-        <p className="mt-10 font-heading text-sm italic text-muted-foreground">— Créé avec MeloKado</p>
+        <p className="mt-10 font-heading text-sm italic text-muted-foreground">— Créé avec Chante-Moi</p>
       </div>
     </main>
   );

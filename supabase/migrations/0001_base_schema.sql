@@ -1,4 +1,4 @@
--- MeloKado — schéma de base (Phase 1 MVP)
+-- Chante-Moi — schéma de base (Phase 1 MVP)
 -- À coller dans Supabase SQL Editor sur un nouveau projet.
 -- Convention: UUID pk (gen_random_uuid()), timestamptz partout, RLS activé sur toutes les
 -- tables contenant des données utilisateur.

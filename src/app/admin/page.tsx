@@ -48,7 +48,7 @@ export default async function AdminPage() {
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <AdminNav />
         <h1 className="mt-6 font-heading text-3xl font-semibold">Administration</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Vue d&apos;ensemble MeloKado.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Vue d&apos;ensemble Chante-Moi.</p>
 
         <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-5">
           {Object.entries(stats).map(([key, value]) => (

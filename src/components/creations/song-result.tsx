@@ -168,7 +168,7 @@ export function SongResult({
   async function share() {
     const url = slug ? `${window.location.origin}/gift/${slug}` : window.location.href;
     if (navigator.share) {
-      navigator.share({ title: song.title ?? "Ma chanson MeloKado", url }).catch(() => {});
+      navigator.share({ title: song.title ?? "Ma chanson Chante-Moi", url }).catch(() => {});
       return;
     }
     const success = await copyToClipboard(url);
@@ -178,7 +178,7 @@ export function SongResult({
 
   function shareWhatsApp() {
     const url = slug ? `${window.location.origin}/gift/${slug}` : window.location.href;
-    const text = encodeURIComponent(`J'ai créé une chanson pour toi avec MeloKado 🎵 ${url}`);
+    const text = encodeURIComponent(`J'ai créé une chanson pour toi avec Chante-Moi 🎵 ${url}`);
     window.open(`https://wa.me/?text=${text}`, "_blank");
   }
 

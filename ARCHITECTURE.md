@@ -1,4 +1,4 @@
-# MeloKado — Architecture technique
+# Chante-Moi — Architecture technique
 
 ## Positionnement
 "Tu racontes. Nous chantons." — plateforme de création musicale personnalisée par IA pour
@@ -57,7 +57,7 @@ est déjà `SUCCESS` (idempotence).
   tables utilisateur, seed des référentiels (occasions, émotions, styles, voix, pays, devises,
   provider_configs, pricing). **Appliqué à un vrai projet Supabase et vérifié de bout en bout**
   (inscription, connexion, création de commande avec RLS, routage de paiement) — voir
-  `project_melokado_status` en mémoire pour le détail de la vérification.
+  `project_chante-moi_status` en mémoire pour le détail de la vérification.
 - Auth Supabase (email/mot de passe) — `/connexion`, `/inscription`.
 - Landing page complète (`/`).
 - Tunnel de création complet (`/creer`) : 8 étapes, mode texte + mode vocal (MediaRecorder),

@@ -36,7 +36,7 @@ export async function POST(request: Request) {
         currency: order.currency,
         countryCode: order.country_code,
         method: body.method,
-        description: `MeloKado — commande ${order.tier}`,
+        description: `Chante-Moi — commande ${order.tier}`,
         customerEmail: user.email ?? undefined,
         customerPhone: body.customerPhone,
         returnUrl: `${siteUrl}/creer/paiement/retour?order=${order.id}`,

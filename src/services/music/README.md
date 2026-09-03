@@ -20,7 +20,7 @@ partir de paroles :
   dernières baisses tarifaires). Plan Starter à 6 $/mois = 30 000 crédits ≈ 11-22 chansons de
   2-4 min. À calibrer précisément une fois un compte réel créé.
 - **Non testé en conditions réelles** : aucune clé `ELEVENLABS_API_KEY` n'existe encore pour
-  MeloKado. Le code est écrit d'après la documentation officielle mais n'a pas encore généré une
+  Chante-Moi. Le code est écrit d'après la documentation officielle mais n'a pas encore généré une
   vraie chanson — smoke-test à faire dès qu'une clé est disponible.
 
 Fichier : `elevenlabs-provider.ts`. C'est désormais le provider prioritaire dans `MusicManager`.

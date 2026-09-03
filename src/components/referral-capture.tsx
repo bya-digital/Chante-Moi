@@ -12,7 +12,7 @@ export function ReferralCapture() {
     const ref = new URLSearchParams(window.location.search).get("ref");
     if (ref) {
       try {
-        localStorage.setItem("melokado_ref", ref);
+        localStorage.setItem("chantemoi_ref", ref);
       } catch {
         // stockage indisponible (navigation privée) — le parrainage ne sera simplement pas attribué
       }

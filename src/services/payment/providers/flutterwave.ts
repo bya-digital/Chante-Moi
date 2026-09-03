@@ -50,7 +50,7 @@ export class FlutterwaveProvider implements PaymentProvider {
         currency: input.currency,
         redirect_url: input.returnUrl,
         customer: { email: input.customerEmail, phonenumber: input.customerPhone },
-        customizations: { title: "MeloKado", description: input.description },
+        customizations: { title: "Chante-Moi", description: input.description },
       }),
     });
 

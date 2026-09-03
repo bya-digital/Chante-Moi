@@ -11,7 +11,7 @@ export function SiteFooter() {
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 <Music2 className="h-3.5 w-3.5" />
               </span>
-              MeloKado
+              Chante-Moi
             </div>
             <p className="mt-3 text-sm text-muted-foreground">
               Tu racontes. Nous chantons.
@@ -48,7 +48,7 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-10 border-t border-border/60 pt-6 text-xs text-muted-foreground">
-          © {new Date().getFullYear()} MeloKado. Fait avec ❤️ pour l&apos;Afrique francophone.
+          © {new Date().getFullYear()} Chante-Moi. Fait avec ❤️ pour l&apos;Afrique francophone.
         </div>
       </div>
     </footer>

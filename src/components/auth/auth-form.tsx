@@ -45,10 +45,10 @@ export function AuthForm({ mode }: { mode: "connexion" | "inscription" }) {
         // Parrainage (section 33) : si un ?ref=CODE a été capturé sur une page précédente, on
         // l'attache au nouveau profil — RLS autorise l'utilisateur à modifier son propre profil.
         try {
-          const refCode = localStorage.getItem("melokado_ref");
+          const refCode = localStorage.getItem("chantemoi_ref");
           if (refCode && data.user) {
             await supabase.from("profiles").update({ referred_by_code: refCode }).eq("id", data.user.id);
-            localStorage.removeItem("melokado_ref");
+            localStorage.removeItem("chantemoi_ref");
           }
         } catch {
           // best-effort, ne bloque jamais l'inscription

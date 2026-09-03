@@ -25,9 +25,9 @@ export class ResendEmailProvider implements NotificationProvider {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "MeloKado <notifications@melokado.app>",
+        from: "Chante-Moi <notifications@chante-moi.app>",
         to: [input.toEmail],
-        subject: input.subject ?? "MeloKado",
+        subject: input.subject ?? "Chante-Moi",
         html: `<p>${input.message}</p>${input.actionUrl ? `<p><a href="${input.actionUrl}">Voir</a></p>` : ""}`,
       }),
     });

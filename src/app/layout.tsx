@@ -24,15 +24,15 @@ const fraunces = Fraunces({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3004"),
   title: {
-    default: "MeloKado — Transformez vos émotions en cadeaux inoubliables",
-    template: "%s — MeloKado",
+    default: "Chante-Moi — Transformez vos émotions en cadeaux inoubliables",
+    template: "%s — Chante-Moi",
   },
   description:
     "Racontez votre histoire, l'IA la transforme en chanson personnalisée. Anniversaires, mariages, déclarations d'amour, Gospel — offrez un cadeau musical unique.",
   openGraph: {
-    title: "MeloKado — Tu racontes. Nous chantons.",
+    title: "Chante-Moi — Tu racontes. Nous chantons.",
     description: "Créez une chanson personnalisée à partir de votre histoire, en quelques minutes.",
-    siteName: "MeloKado",
+    siteName: "Chante-Moi",
     locale: "fr_FR",
     type: "website",
   },

@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: OccasionPageProps): Promise<M
 
   return {
     title: `Chanson ${occasion.name.toLowerCase()} personnalisée`,
-    description: occasion.description ?? `Créez une chanson ${occasion.name.toLowerCase()} personnalisée avec MeloKado.`,
+    description: occasion.description ?? `Créez une chanson ${occasion.name.toLowerCase()} personnalisée avec Chante-Moi.`,
   };
 }
 
@@ -45,7 +45,7 @@ export default async function OccasionLandingPage({ params }: OccasionPageProps)
             Une chanson <span className="italic text-primary">{occasion.name.toLowerCase()}</span> rien que pour vous
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-pretty text-muted-foreground">
-            {occasion.description ?? "Racontez votre histoire, MeloKado la transforme en chanson personnalisée."}
+            {occasion.description ?? "Racontez votre histoire, Chante-Moi la transforme en chanson personnalisée."}
           </p>
           <div className="mt-8">
             <Button asChild size="lg" className="rounded-full px-8">

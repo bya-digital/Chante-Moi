@@ -14,7 +14,7 @@
 | Maketou | **Non implémenté** — stub | Vérifier doc officielle avant intégration |
 
 Aucun de ces providers n'a été testé contre un vrai compte marchand (aucune clé API n'existe
-encore pour MeloKado). Même les providers "implémentés" doivent être validés en sandbox avant
+encore pour Chante-Moi). Même les providers "implémentés" doivent être validés en sandbox avant
 tout paiement réel — ne jamais considérer un paiement comme réussi sans passer par
 `verifyPayment()` côté serveur (voir règle section 16 du cahier des charges).
 
