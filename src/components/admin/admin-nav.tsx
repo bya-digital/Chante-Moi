@@ -3,6 +3,7 @@ import Link from "next/link";
 const LINKS = [
   { href: "/admin", label: "Vue d'ensemble" },
   { href: "/admin/referentiels", label: "Référentiels" },
+  { href: "/admin/couts", label: "Coûts & revenus" },
 ];
 
 export function AdminNav() {

@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { PaymentManager } from "@/services/payment/manager";
 import { triggerSongGeneration } from "@/services/music/trigger";
 import { notifyUser } from "@/services/notify-user";
+import { rewardReferrerIfEligible } from "@/services/referrals";
 
 /**
  * Un paiement n'est JAMAIS considéré réussi sur la seule base du webhook brut (section 16) :
@@ -74,6 +75,7 @@ export async function POST(request: Request, context: { params: Promise<{ provid
           subject: "Paiement confirmé",
           message: "Votre paiement est confirmé, votre chanson est en cours de création.",
         });
+        await rewardReferrerIfEligible(order.user_id);
       }
 
       const { data: song } = await admin.from("songs").select("id").eq("order_id", attempt.order_id).maybeSingle();

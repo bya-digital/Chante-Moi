@@ -41,6 +41,18 @@ export function AuthForm({ mode }: { mode: "connexion" | "inscription" }) {
           setLoading(false);
           return;
         }
+
+        // Parrainage (section 33) : si un ?ref=CODE a été capturé sur une page précédente, on
+        // l'attache au nouveau profil — RLS autorise l'utilisateur à modifier son propre profil.
+        try {
+          const refCode = localStorage.getItem("melokado_ref");
+          if (refCode && data.user) {
+            await supabase.from("profiles").update({ referred_by_code: refCode }).eq("id", data.user.id);
+            localStorage.removeItem("melokado_ref");
+          }
+        } catch {
+          // best-effort, ne bloque jamais l'inscription
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -98,6 +110,14 @@ export function AuthForm({ mode }: { mode: "connexion" | "inscription" }) {
             {mode === "connexion" ? "Se connecter" : "Créer mon compte"}
           </Button>
         </form>
+
+        {mode === "connexion" && (
+          <p className="mt-3 text-center text-xs">
+            <Link href="/mot-de-passe-oublie" className="text-muted-foreground hover:text-foreground">
+              Mot de passe oublié ?
+            </Link>
+          </p>
+        )}
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           {mode === "connexion" ? (
