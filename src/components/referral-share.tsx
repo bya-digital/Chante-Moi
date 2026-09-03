@@ -5,13 +5,19 @@ import { Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { copyToClipboard } from "@/lib/clipboard";
+import { toast } from "sonner";
 
 export function ReferralShare({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
   const link = typeof window !== "undefined" ? `${window.location.origin}/?ref=${code}` : `/?ref=${code}`;
 
-  function copy() {
-    navigator.clipboard.writeText(link);
+  async function copy() {
+    const success = await copyToClipboard(link);
+    if (!success) {
+      toast.error("Impossible de copier automatiquement — sélectionnez et copiez le lien manuellement");
+      return;
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }

@@ -5,35 +5,32 @@ function generateCode(userId: string): string {
   return `MK${userId.replace(/-/g, "").slice(0, 6).toUpperCase()}`;
 }
 
-/** Récupère le code de parrainage de l'utilisateur, le crée s'il n'existe pas encore. */
+/**
+ * Récupère le code de parrainage de l'utilisateur, le crée s'il n'existe pas encore.
+ *
+ * Écrit pour être sûr même si deux appels concurrents arrivent en même temps (React peut
+ * invoquer un Server Component deux fois en dev, un utilisateur peut recharger vite) : on tente
+ * l'insert et on ignore l'erreur de conflit plutôt que de faire un "lookup puis insert" qui a un
+ * trou entre les deux (déjà vécu : 6 lignes créées pour le même utilisateur en rechargeant vite).
+ * La contrainte unique sur referrals.referrer_user_id est ce qui rend ça sûr — sans elle, ce
+ * code réintroduirait le même bug.
+ */
 export async function getOrCreateReferralCode(userId: string): Promise<string> {
   const admin = createAdminClient();
+  const code = generateCode(userId);
 
-  const { data: existing } = await admin
+  // Erreur de conflit attendue et ignorée si une ligne existe déjà pour cet utilisateur ou ce code.
+  await admin.from("referrals").insert({ referrer_user_id: userId, code });
+
+  const { data, error } = await admin
     .from("referrals")
     .select("code")
     .eq("referrer_user_id", userId)
+    .order("created_at", { ascending: true })
+    .limit(1)
     .maybeSingle();
-  if (existing) return existing.code;
 
-  const code = generateCode(userId);
-  const { data, error } = await admin
-    .from("referrals")
-    .insert({ referrer_user_id: userId, code })
-    .select("code")
-    .single();
-
-  if (error) {
-    // Code déjà pris (collision rare) — retente avec un suffixe aléatoire.
-    const fallbackCode = `${code}${Math.floor(Math.random() * 100)}`;
-    const { data: retry } = await admin
-      .from("referrals")
-      .insert({ referrer_user_id: userId, code: fallbackCode })
-      .select("code")
-      .single();
-    return retry?.code ?? fallbackCode;
-  }
-
+  if (error || !data) throw new Error(`Impossible de récupérer le code de parrainage: ${error?.message}`);
   return data.code;
 }
 

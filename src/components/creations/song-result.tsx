@@ -20,6 +20,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import { copyToClipboard } from "@/lib/clipboard";
 import { cn } from "@/lib/utils";
 
 interface SongRow {
@@ -164,14 +165,15 @@ export function SongResult({
     router.push("/mes-creations");
   }
 
-  function share() {
+  async function share() {
     const url = slug ? `${window.location.origin}/gift/${slug}` : window.location.href;
     if (navigator.share) {
       navigator.share({ title: song.title ?? "Ma chanson MeloKado", url }).catch(() => {});
-    } else {
-      navigator.clipboard.writeText(url);
-      toast.success("Lien copié");
+      return;
     }
+    const success = await copyToClipboard(url);
+    if (success) toast.success("Lien copié");
+    else toast.error("Impossible de copier automatiquement — sélectionnez et copiez le lien manuellement");
   }
 
   function shareWhatsApp() {

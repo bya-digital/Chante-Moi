@@ -2,6 +2,7 @@
 
 import { Heart, Music2, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { copyToClipboard } from "@/lib/clipboard";
 import { toast } from "sonner";
 
 interface GiftViewProps {
@@ -11,14 +12,15 @@ interface GiftViewProps {
 }
 
 export function GiftView({ giftPage, song, lyricsText }: GiftViewProps) {
-  function share() {
+  async function share() {
     const url = window.location.href;
     if (navigator.share) {
       navigator.share({ title: song.title ?? "Une chanson pour toi", url }).catch(() => {});
-    } else {
-      navigator.clipboard.writeText(url);
-      toast.success("Lien copié");
+      return;
     }
+    const success = await copyToClipboard(url);
+    if (success) toast.success("Lien copié");
+    else toast.error("Impossible de copier automatiquement — sélectionnez et copiez le lien manuellement");
   }
 
   return (

@@ -463,7 +463,7 @@ create policy "favorites_owner_all" on public.favorites for all using (user_id =
 
 create table if not exists public.referrals (
   id uuid primary key default gen_random_uuid(),
-  referrer_user_id uuid not null references auth.users(id) on delete cascade,
+  referrer_user_id uuid not null references auth.users(id) on delete cascade unique,
   code text not null unique,
   created_at timestamptz not null default now()
 );
