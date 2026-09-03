@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { MusicGenerationStatusResult } from "./types";
+import { refundCredit } from "../credits";
 
 /**
  * Applique le résultat terminal d'une génération musicale (COMPLETED/FAILED/CANCELLED) aux
@@ -12,9 +13,10 @@ import type { MusicGenerationStatusResult } from "./types";
 export async function finalizeMusicGeneration(params: {
   generationId: string;
   songId: string;
+  userId: string;
   result: MusicGenerationStatusResult;
 }) {
-  const { generationId, songId, result } = params;
+  const { generationId, songId, userId, result } = params;
   const admin = createAdminClient();
 
   await admin
@@ -38,5 +40,8 @@ export async function finalizeMusicGeneration(params: {
       .eq("id", songId);
   } else if (result.status === "FAILED" || result.status === "CANCELLED") {
     await admin.from("songs").update({ status: "failed" }).eq("id", songId);
+    // Le crédit a été débité au démarrage de la génération (section 13) — jamais de génération
+    // non livrée facturée au client.
+    await refundCredit({ userId, songId });
   }
 }

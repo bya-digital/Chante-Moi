@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MusicManager } from "@/services/music/manager";
 import { finalizeMusicGeneration } from "@/services/music/finalize";
+import { dbProviderStatusChecker } from "@/services/provider-status";
+import { consumeCredit, refundCredit } from "@/services/credits";
 
 /**
  * Démarre une génération musicale asynchrone (section 52) : ne bloque jamais la requête HTTP
@@ -20,7 +22,7 @@ export async function POST(request: Request) {
 
   const { data: song, error: songError } = await supabase
     .from("songs")
-    .select("id, user_id, title, language, order_id")
+    .select("id, user_id, title, language, order_id, orders(country_code)")
     .eq("id", body.songId)
     .single();
   if (songError || !song) return NextResponse.json({ error: "Chanson introuvable" }, { status: 404 });
@@ -44,11 +46,25 @@ export async function POST(request: Request) {
     .single();
   if (genError || !generation) return NextResponse.json({ error: "Impossible de créer la génération" }, { status: 500 });
 
+  const consumed = await consumeCredit({ userId: user.id, songId: song.id });
+  if (!consumed) {
+    await admin
+      .from("generations")
+      .update({ status: "FAILED", error_message: "Crédit insuffisant", completed_at: new Date().toISOString() })
+      .eq("id", generation.id);
+    await admin.from("songs").update({ status: "failed" }).eq("id", song.id);
+    return NextResponse.json({ error: "Crédit insuffisant", generationId: generation.id }, { status: 402 });
+  }
+
   try {
-    const music = new MusicManager();
+    const music = new MusicManager(undefined, dbProviderStatusChecker());
     const sections = Array.isArray(lyrics.sections)
       ? (lyrics.sections as { kind: string; text: string }[])
       : undefined;
+
+    type OrderRef = { country_code: string } | { country_code: string }[] | null;
+    const orderRef = song.orders as OrderRef;
+    const countryCode = Array.isArray(orderRef) ? orderRef[0]?.country_code : orderRef?.country_code;
 
     const handle = await music.startGeneration({
       lyrics: lyrics.full_text,
@@ -58,6 +74,7 @@ export async function POST(request: Request) {
       emotion: body.emotion ?? "",
       language: song.language ?? "fr",
       voiceType: body.voiceType,
+      countryCode,
     });
 
     await admin
@@ -74,7 +91,12 @@ export async function POST(request: Request) {
     if (handle.immediateResult) {
       // Provider synchrone (ex. ElevenLabs) : le résultat est déjà connu, on finalise tout de
       // suite plutôt que de renvoyer un statut PROCESSING que le frontend devrait poller.
-      await finalizeMusicGeneration({ generationId: generation.id, songId: song.id, result: handle.immediateResult });
+      await finalizeMusicGeneration({
+        generationId: generation.id,
+        songId: song.id,
+        userId: user.id,
+        result: handle.immediateResult,
+      });
       return NextResponse.json({
         generationId: generation.id,
         status: handle.immediateResult.status,
@@ -92,6 +114,9 @@ export async function POST(request: Request) {
       .update({ status: "FAILED", error_message: message, completed_at: new Date().toISOString() })
       .eq("id", generation.id);
     await admin.from("songs").update({ status: "failed" }).eq("id", song.id);
+    // Le crédit a été débité avant l'appel au provider — la génération n'a jamais démarré, il
+    // faut le recréditer.
+    await refundCredit({ userId: user.id, songId: song.id });
     return NextResponse.json({ error: message, generationId: generation.id }, { status: 502 });
   }
 }

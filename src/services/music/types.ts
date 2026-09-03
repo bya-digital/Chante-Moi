@@ -21,6 +21,8 @@ export interface MusicGenerationInput {
   language: string;
   voiceType?: string;
   durationSeconds?: number;
+  /** Pays du client (ISO-3166 alpha-2) — influence l'intonation/l'accent de la voix chantée, pas seulement le style musical */
+  countryCode?: string;
 }
 
 export interface MusicGenerationHandle {

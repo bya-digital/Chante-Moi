@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { MusicManager } from "@/services/music/manager";
 import { finalizeMusicGeneration } from "@/services/music/finalize";
+import { dbProviderStatusChecker } from "@/services/provider-status";
 
 export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
@@ -20,6 +21,10 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
 
   if (error || !generation) return NextResponse.json({ error: "Génération introuvable" }, { status: 404 });
 
+  type SongRef = { user_id: string } | { user_id: string }[] | null;
+  const songRef = generation.songs as SongRef;
+  const songUserId = Array.isArray(songRef) ? songRef[0]?.user_id : songRef?.user_id;
+
   const job = await supabase
     .from("generation_jobs")
     .select("provider_job_id")
@@ -34,14 +39,14 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
 
   // Statut réel interrogé auprès du provider — jamais une progression simulée (section 22).
   try {
-    const music = new MusicManager();
+    const music = new MusicManager(undefined, dbProviderStatusChecker());
     const statusResult = await music.checkStatus(generation.provider_id, {
       providerJobId: job.data.provider_job_id,
       providerId: generation.provider_id,
     });
 
-    if (statusResult.status !== "PROCESSING" && statusResult.status !== "PENDING") {
-      await finalizeMusicGeneration({ generationId: id, songId: generation.song_id, result: statusResult });
+    if (statusResult.status !== "PROCESSING" && statusResult.status !== "PENDING" && songUserId) {
+      await finalizeMusicGeneration({ generationId: id, songId: generation.song_id, userId: songUserId, result: statusResult });
     }
 
     return NextResponse.json({

@@ -68,7 +68,7 @@ export default async function HomePage() {
           <div className="mx-auto max-w-5xl px-4 pb-20 pt-16 text-center sm:px-6 sm:pt-24">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm">
               <Sparkles className="h-3.5 w-3.5 text-accent" />
-              Fait pour l&apos;Afrique francophone — priorité Côte d&apos;Ivoire
+              Conçu pour l&apos;Afrique francophone
             </span>
 
             <h1 className="mt-6 text-balance font-heading text-4xl font-semibold leading-[1.1] tracking-tight sm:text-6xl">
@@ -203,7 +203,7 @@ export default async function HomePage() {
               ))}
             </div>
             <p className="mt-4 text-center text-xs text-muted-foreground">
-              Tarifs indicatifs pour la Côte d&apos;Ivoire, en FCFA — ajustables selon les pays.
+              Tarifs indicatifs en FCFA — ajustables selon votre pays.
             </p>
           </div>
         </section>

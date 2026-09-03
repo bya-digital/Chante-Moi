@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { AIManager } from "@/services/ai/manager";
 import type { LyricsRewriteInput } from "@/services/ai/types";
+import { dbProviderStatusChecker } from "@/services/provider-status";
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
@@ -9,7 +10,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const ai = new AIManager();
+    const ai = new AIManager(undefined, dbProviderStatusChecker());
     const lyrics = await ai.rewriteLyrics({
       lyrics: body.lyrics,
       instruction: body.instruction as LyricsRewriteInput["instruction"],

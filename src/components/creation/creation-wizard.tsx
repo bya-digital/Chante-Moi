@@ -10,10 +10,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { OccasionIcon } from "@/components/marketing/occasion-icon";
 import { VoiceRecorder } from "./voice-recorder";
-import type { EmotionRow, MusicStyleRow, OccasionRow, VoiceRow } from "@/lib/data/reference";
+import type { CountryRow, EmotionRow, MusicStyleRow, OccasionRow, VoiceRow } from "@/lib/data/reference";
 import type { GeneratedLyrics } from "@/services/ai/types";
 import { cn } from "@/lib/utils";
 
@@ -39,9 +40,10 @@ interface CreationWizardProps {
   emotions: EmotionRow[];
   musicStyles: MusicStyleRow[];
   voices: VoiceRow[];
+  countries: CountryRow[];
 }
 
-export function CreationWizard({ occasions, emotions, musicStyles, voices }: CreationWizardProps) {
+export function CreationWizard({ occasions, emotions, musicStyles, voices, countries }: CreationWizardProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialOccasion = searchParams.get("occasion") ?? undefined;
@@ -50,6 +52,9 @@ export function CreationWizard({ occasions, emotions, musicStyles, voices }: Cre
   const [occasionSlug, setOccasionSlug] = useState<string | undefined>(initialOccasion);
   const [recipientName, setRecipientName] = useState("");
   const [relationship, setRelationship] = useState("");
+  const [countryCode, setCountryCode] = useState(
+    countries.find((c) => c.code === process.env.NEXT_PUBLIC_DEFAULT_COUNTRY)?.code ?? countries[0]?.code ?? "CI",
+  );
   const [story, setStory] = useState("");
   const [emotionSlug, setEmotionSlug] = useState<string>();
   const [musicStyleSlug, setMusicStyleSlug] = useState<string>();
@@ -117,10 +122,25 @@ export function CreationWizard({ occasions, emotions, musicStyles, voices }: Cre
   async function submitOrder() {
     setSubmittingOrder(true);
     try {
+      if (!lyrics) {
+        toast.error("Générez et validez vos paroles avant de continuer");
+        return;
+      }
+
       const orderRes = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ occasionSlug, recipientName, tier }),
+        body: JSON.stringify({
+          occasionSlug,
+          recipientName,
+          tier,
+          emotionSlug,
+          musicStyleSlug,
+          voiceSlug,
+          story,
+          lyrics,
+          countryCode,
+        }),
       });
       const orderData = await orderRes.json();
       if (!orderRes.ok) throw new Error(orderData.error ?? "Échec de la création de la commande");
@@ -206,6 +226,24 @@ export function CreationWizard({ occasions, emotions, musicStyles, voices }: Cre
                   placeholder="Ex. ma maman, mon épouse, mon meilleur ami..."
                   className="mt-1.5"
                 />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Votre pays</label>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  La voix chantera avec l&apos;intonation et l&apos;accent de ce pays.
+                </p>
+                <Select value={countryCode} onValueChange={setCountryCode}>
+                  <SelectTrigger className="mt-1.5 w-full">
+                    <SelectValue placeholder="Choisir un pays" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countries.map((c) => (
+                      <SelectItem key={c.code} value={c.code}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </StepShell>

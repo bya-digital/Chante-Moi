@@ -2,7 +2,7 @@
 
 ## Positionnement
 "Tu racontes. Nous chantons." — plateforme de création musicale personnalisée par IA pour
-l'Afrique francophone (priorité Côte d'Ivoire). Une histoire → une émotion → une chanson → un
+l'Afrique francophone. Une histoire → une émotion → une chanson → un
 cadeau → un souvenir partageable. Pas un générateur de musique générique : un produit-cadeau
 émotionnel, mobile-first.
 
@@ -24,9 +24,23 @@ cadeau → un souvenir partageable. Pas un générateur de musique générique :
 Aucune page ni composant métier n'importe un SDK provider directement. Tout passe par un
 `Manager` (`AIManager`, `SpeechManager`, `MusicManager`, `PaymentManager`, `StorageManager`,
 `NotificationManager`) qui route vers le premier provider configuré/actif, avec fallback. Le
-kill switch admin (table `provider_configs`) coupera un provider sans toucher au code — pas
-encore branché sur une UI admin (à faire), mais le contrat `ProviderStatusChecker` existe déjà
-dans `src/services/ai/manager.ts` et est réutilisé partout.
+kill switch admin (table `provider_configs`, page `/admin`) est **réellement branché** :
+`dbProviderStatusChecker()` (`src/services/provider-status.ts`) lit la colonne `active` en base
+et est injecté dans chaque instanciation de Manager — désactiver un provider depuis `/admin`
+l'exclut immédiatement du routage, vérifié en conditions réelles (toggle + relecture DB).
+
+## Chaîne commande → chanson
+```
+/creer (8 étapes) → POST /api/orders (crée order + song "lyrics_ready" + lyrics en une fois)
+    → POST /api/payments/create → redirection provider → paiement
+    → Webhook /api/payments/webhook/[provider] (paiement SUCCESS, idempotent)
+        → credit_transactions +1 → triggerSongGeneration(songId) (src/services/music/trigger.ts)
+        → MusicManager.startGeneration() → finalizeMusicGeneration() → songs.status = completed/failed
+/creations/[id] affiche le résultat (poll si processing), /mes-creations liste l'historique,
+"Créer une page cadeau" insère dans gift_pages, /gift/[slug] est la page publique de partage.
+```
+La génération musicale n'est déclenchée qu'après confirmation serveur du paiement (section 21) —
+jamais depuis le tunnel de création lui-même.
 
 ## Principe de sécurité des paiements
 ```
@@ -62,10 +76,21 @@ est déjà `SUCCESS` (idempotence).
   par section). Provider synchrone — génère et renvoie l'audio dans la même requête, uploadé
   vers Supabase Storage. **Non testé avec une vraie clé API** — voir `src/services/music/README.md`.
 
+- Page résultat (`/creations/[id]`, polling live), page cadeau publique (`/gift/[slug]`),
+  historique filtrable (`/mes-creations`), admin basique (`/admin` : stats, kill switch
+  providers, dernières commandes — gate `requireAdmin()` testée avec/sans rôle admin).
+- Trigger `handle_new_user` : une ligne `profiles` est créée automatiquement à l'inscription
+  (vérifié) — sans ça le compteur "Utilisateurs" de l'admin restait à 0 malgré de vrais comptes.
+
 ## Ce qui N'EST PAS prêt (volontairement, jamais simulé)
 - Le moteur musical ElevenLabs n'a jamais généré une vraie chanson (pas de clé API) — le code
   suit la doc officielle mais reste à valider en conditions réelles avant toute mise en prod.
-- Page résultat, page cadeau (`/gift/[slug]`), historique (`/mes-creations`), admin, vidéo.
+- Vidéo (section 25), page B2B/marketplace, abonnements — hors scope Phase 1.
+- **Les crédits sont achetés mais pas encore consommés/remboursés** : le webhook crédite 1
+  crédit à l'achat et déclenche la génération, mais rien ne débite ce crédit au démarrage d'une
+  génération ni ne le rembourse automatiquement en cas d'échec (section 13/17/18/54) — la
+  table `credit_transactions` existe et est écrite à l'achat, il manque la moitié
+  consommation/remboursement. Tâche de suivi déjà proposée (voir chip de session).
 
 ## Conventions
 UUID partout, `timestamptz` partout, RLS activé sur toutes les tables dès la création. Policies

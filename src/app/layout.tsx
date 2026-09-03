@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     title: "MeloKado — Tu racontes. Nous chantons.",
     description: "Créez une chanson personnalisée à partir de votre histoire, en quelques minutes.",
     siteName: "MeloKado",
-    locale: "fr_CI",
+    locale: "fr_FR",
     type: "website",
   },
 };

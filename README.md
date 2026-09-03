@@ -2,9 +2,8 @@
 
 Tu racontes. Nous chantons.
 
-Plateforme de création musicale personnalisée par IA pour l'Afrique francophone (priorité
-Côte d'Ivoire). Voir [ARCHITECTURE.md](./ARCHITECTURE.md) pour le détail technique et l'état
-d'avancement réel.
+Plateforme de création musicale personnalisée par IA pour l'Afrique francophone. Voir
+[ARCHITECTURE.md](./ARCHITECTURE.md) pour le détail technique et l'état d'avancement réel.
 
 ## Démarrer en local
 

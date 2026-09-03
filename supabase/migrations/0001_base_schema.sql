@@ -187,6 +187,28 @@ drop trigger if exists profiles_set_updated_at on public.profiles;
 create trigger profiles_set_updated_at before update on public.profiles
   for each row execute function public.set_updated_at();
 
+-- Crée automatiquement une ligne profiles à l'inscription (auth.users échappe à notre schéma
+-- public, donc rien ne le fait sans ce trigger — sans lui, le compteur "Utilisateurs" de
+-- l'admin reste à 0 même avec de vrais comptes créés).
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.profiles (id, full_name)
+  values (new.id, new.raw_user_meta_data ->> 'full_name')
+  on conflict (id) do nothing;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
+
 -- =========================================================
 -- 4. Commandes / paiements / crédits (sections 14-17-58)
 -- =========================================================
@@ -310,6 +332,9 @@ alter table public.lyrics enable row level security;
 drop policy if exists "lyrics_owner_read" on public.lyrics;
 create policy "lyrics_owner_read" on public.lyrics for select
   using (exists (select 1 from public.songs s where s.id = song_id and (s.user_id = auth.uid() or public.is_admin(auth.uid()))));
+drop policy if exists "lyrics_owner_write" on public.lyrics;
+create policy "lyrics_owner_write" on public.lyrics for insert
+  with check (exists (select 1 from public.songs s where s.id = song_id and s.user_id = auth.uid()));
 
 create table if not exists public.song_versions (
   id uuid primary key default gen_random_uuid(),
@@ -640,6 +665,8 @@ insert into public.provider_configs (id, provider_type, display_name, priority) 
   ('kkiapay', 'payment', 'Kkiapay', 60),
   ('ikepay', 'payment', 'IkePay', 70),
   ('paypal', 'payment', 'PayPal', 80),
+  ('chariow', 'payment', 'Chariow', 90),
+  ('maketou', 'payment', 'Maketou', 100),
   ('supabase-storage', 'storage', 'Supabase Storage', 10),
   ('resend', 'notification', 'Resend (Email)', 10),
   ('whatsapp', 'notification', 'WhatsApp Business', 20)

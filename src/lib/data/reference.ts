@@ -28,6 +28,11 @@ export interface VoiceRow {
   category: string;
 }
 
+export interface CountryRow {
+  code: string;
+  name: string;
+}
+
 // Miroir du seed SQL (0001_base_schema.sql) — utilisé tant qu'aucun projet Supabase n'est
 // connecté en local, pour que la landing page et le tunnel de création restent navigables.
 const FALLBACK_OCCASIONS: OccasionRow[] = [
@@ -71,6 +76,18 @@ const FALLBACK_VOICES: VoiceRow[] = [
   { id: "homme-puissant", slug: "homme-puissant", name: "Homme puissant", gender: "masculine", category: "puissante" },
   { id: "femme-douce", slug: "femme-douce", name: "Femme douce", gender: "feminine", category: "douce" },
   { id: "femme-emotionnelle", slug: "femme-emotionnelle", name: "Femme émotionnelle", gender: "feminine", category: "emotionnelle" },
+];
+
+const FALLBACK_COUNTRIES: CountryRow[] = [
+  { code: "CI", name: "Côte d'Ivoire" },
+  { code: "BJ", name: "Bénin" },
+  { code: "TG", name: "Togo" },
+  { code: "SN", name: "Sénégal" },
+  { code: "CM", name: "Cameroun" },
+  { code: "BF", name: "Burkina Faso" },
+  { code: "ML", name: "Mali" },
+  { code: "GA", name: "Gabon" },
+  { code: "CD", name: "RDC" },
 ];
 
 export async function getOccasions(): Promise<OccasionRow[]> {
@@ -130,5 +147,20 @@ export async function getVoices(): Promise<VoiceRow[]> {
     return data as VoiceRow[];
   } catch {
     return FALLBACK_VOICES;
+  }
+}
+
+export async function getCountries(): Promise<CountryRow[]> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("countries")
+      .select("code, name")
+      .eq("active", true)
+      .order("sort_order");
+    if (error || !data || data.length === 0) return FALLBACK_COUNTRIES;
+    return data;
+  } catch {
+    return FALLBACK_COUNTRIES;
   }
 }

@@ -33,5 +33,18 @@ export function getAllPaymentProviders(): PaymentProvider[] {
       "IKEPAY_API_KEY",
     ]),
     new UnverifiedPaymentProvider("paypal", "PayPal", ["*"], ["paypal"], ["PAYPAL_CLIENT_ID", "PAYPAL_CLIENT_SECRET"]),
+    new UnverifiedPaymentProvider("chariow", "Chariow", ["CI", "SN", "BJ", "TG"], [
+      "orange_money",
+      "mtn_momo",
+      "moov_money",
+      "wave",
+      "card",
+    ], ["CHARIOW_API_KEY"]),
+    new UnverifiedPaymentProvider("maketou", "Maketou", ["CI", "SN", "BJ", "TG", "CM"], [
+      "orange_money",
+      "mtn_momo",
+      "moov_money",
+      "card",
+    ], ["MAKETOU_API_KEY"]),
   ];
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { SpeechManager } from "@/services/speech/manager";
 import { AIManager } from "@/services/ai/manager";
+import { dbProviderStatusChecker } from "@/services/provider-status";
 
 export async function POST(request: Request) {
   const form = await request.formData().catch(() => null);
@@ -10,7 +11,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const speech = new SpeechManager();
+    const speech = new SpeechManager(undefined, dbProviderStatusChecker());
     const transcription = await speech.transcribe({
       audio,
       filename: "story.webm",
@@ -22,7 +23,7 @@ export async function POST(request: Request) {
     let cleaned = transcription.transcript;
     let detectedEmotion: string | undefined;
     try {
-      const ai = new AIManager();
+      const ai = new AIManager(undefined, dbProviderStatusChecker());
       const result = await ai.cleanupStory({ rawTranscript: transcription.transcript });
       cleaned = result.cleanedStory;
       detectedEmotion = result.detectedEmotion;

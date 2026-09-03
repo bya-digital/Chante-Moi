@@ -8,6 +8,7 @@ import type {
   MusicProvider,
 } from "./types";
 import { MusicProviderError } from "./types";
+import { vocalIntonationForCountry } from "./vocal-intonation";
 
 const ELEVENLABS_MUSIC_URL = "https://api.elevenlabs.io/v1/music";
 
@@ -30,7 +31,9 @@ const DEFAULT_SECTION_DURATION_MS: Record<string, number> = {
 };
 
 function buildCompositionPlan(input: MusicGenerationInput) {
-  const globalStyles = [input.musicStyle, input.emotion].filter(Boolean);
+  const globalStyles = [input.musicStyle, input.emotion, vocalIntonationForCountry(input.countryCode)].filter(
+    Boolean,
+  );
 
   const sections: MusicGenerationLyricsSection[] =
     input.sections && input.sections.length > 0

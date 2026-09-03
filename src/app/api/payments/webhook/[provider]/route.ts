@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PaymentManager } from "@/services/payment/manager";
+import { triggerSongGeneration } from "@/services/music/trigger";
 
 /**
  * Un paiement n'est JAMAIS considéré réussi sur la seule base du webhook brut (section 16) :
@@ -66,6 +67,13 @@ export async function POST(request: Request, context: { params: Promise<{ provid
           amount: 1,
           order_id: attempt.order_id,
         });
+      }
+
+      const { data: song } = await admin.from("songs").select("id").eq("order_id", attempt.order_id).maybeSingle();
+      if (song) {
+        // Best-effort : ne bloque jamais la confirmation du webhook si la génération échoue —
+        // le paiement reste valide, la génération peut être relancée depuis l'admin/l'historique.
+        await triggerSongGeneration(song.id);
       }
     }
 
