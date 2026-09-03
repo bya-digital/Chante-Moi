@@ -1,8 +1,20 @@
 import Link from "next/link";
-import { Music2 } from "lucide-react";
+import { Music2, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/server";
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let isAdmin = false;
+  if (user) {
+    const { data } = await supabase.from("admin_users").select("id").eq("id", user.id).maybeSingle();
+    isAdmin = Boolean(data);
+  }
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
@@ -29,9 +41,22 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-            <Link href="/connexion">Connexion</Link>
-          </Button>
+          {isAdmin && (
+            <Button asChild variant="outline" size="sm" className="hidden gap-1.5 sm:inline-flex">
+              <Link href="/admin">
+                <ShieldCheck className="h-4 w-4" /> Admin
+              </Link>
+            </Button>
+          )}
+          {user ? (
+            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+              <Link href="/mes-creations">Mes créations</Link>
+            </Button>
+          ) : (
+            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+              <Link href="/connexion">Connexion</Link>
+            </Button>
+          )}
           <Button asChild size="sm" className="rounded-full px-5">
             <Link href="/creer">Créer ma chanson</Link>
           </Button>
