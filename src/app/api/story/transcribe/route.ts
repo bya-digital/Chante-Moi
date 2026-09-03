@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { SpeechManager } from "@/services/speech/manager";
 import { AIManager } from "@/services/ai/manager";
 import { dbProviderStatusChecker } from "@/services/provider-status";
+import { CostTracker } from "@/services/cost-tracker";
+import { TRANSCRIPTION_COST_XOF } from "@/services/cost-estimates";
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
   const form = await request.formData().catch(() => null);
@@ -30,6 +33,17 @@ export async function POST(request: Request) {
     } catch {
       // on garde la transcription brute
     }
+
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    await new CostTracker().record({
+      category: "transcription",
+      providerId: transcription.providerId,
+      amountXof: TRANSCRIPTION_COST_XOF,
+      userId: user?.id,
+    });
 
     return NextResponse.json({ transcript: transcription.transcript, cleanedStory: cleaned, detectedEmotion });
   } catch (err) {

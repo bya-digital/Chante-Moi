@@ -95,6 +95,7 @@ export async function POST(request: Request) {
         generationId: generation.id,
         songId: song.id,
         userId: user.id,
+        providerId: handle.providerId,
         result: handle.immediateResult,
       });
       return NextResponse.json({

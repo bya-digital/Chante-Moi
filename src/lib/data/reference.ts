@@ -4,6 +4,7 @@ export interface OccasionRow {
   id: string;
   slug: string;
   name: string;
+  description: string | null;
   icon: string | null;
 }
 
@@ -36,18 +37,18 @@ export interface CountryRow {
 // Miroir du seed SQL (0001_base_schema.sql) — utilisé tant qu'aucun projet Supabase n'est
 // connecté en local, pour que la landing page et le tunnel de création restent navigables.
 const FALLBACK_OCCASIONS: OccasionRow[] = [
-  { id: "anniversaire", slug: "anniversaire", name: "Anniversaire", icon: "Cake" },
-  { id: "amour", slug: "amour", name: "Déclaration d'amour", icon: "Heart" },
-  { id: "mariage", slug: "mariage", name: "Mariage", icon: "Gem" },
-  { id: "naissance", slug: "naissance", name: "Naissance", icon: "Baby" },
-  { id: "maman", slug: "maman", name: "Pour maman", icon: "Flower2" },
-  { id: "papa", slug: "papa", name: "Pour papa", icon: "Award" },
-  { id: "hommage", slug: "hommage", name: "Hommage", icon: "Flame" },
-  { id: "merci", slug: "merci", name: "Merci", icon: "HandHeart" },
-  { id: "reussite", slug: "reussite", name: "Réussite", icon: "Trophy" },
-  { id: "gospel", slug: "gospel", name: "Gospel", icon: "Church" },
-  { id: "demande-mariage", slug: "demande-mariage", name: "Demande en mariage", icon: "Gem" },
-  { id: "entreprise", slug: "entreprise", name: "Entreprise", icon: "Briefcase" },
+  { id: "anniversaire", slug: "anniversaire", name: "Anniversaire", description: null, icon: "Cake" },
+  { id: "amour", slug: "amour", name: "Déclaration d'amour", description: null, icon: "Heart" },
+  { id: "mariage", slug: "mariage", name: "Mariage", description: null, icon: "Gem" },
+  { id: "naissance", slug: "naissance", name: "Naissance", description: null, icon: "Baby" },
+  { id: "maman", slug: "maman", name: "Pour maman", description: null, icon: "Flower2" },
+  { id: "papa", slug: "papa", name: "Pour papa", description: null, icon: "Award" },
+  { id: "hommage", slug: "hommage", name: "Hommage", description: null, icon: "Flame" },
+  { id: "merci", slug: "merci", name: "Merci", description: null, icon: "HandHeart" },
+  { id: "reussite", slug: "reussite", name: "Réussite", description: null, icon: "Trophy" },
+  { id: "gospel", slug: "gospel", name: "Gospel", description: null, icon: "Church" },
+  { id: "demande-mariage", slug: "demande-mariage", name: "Demande en mariage", description: null, icon: "Gem" },
+  { id: "entreprise", slug: "entreprise", name: "Entreprise", description: null, icon: "Briefcase" },
 ];
 
 const FALLBACK_MUSIC_STYLES: MusicStyleRow[] = [
@@ -95,7 +96,7 @@ export async function getOccasions(): Promise<OccasionRow[]> {
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("occasions")
-      .select("id, slug, name, icon")
+      .select("id, slug, name, description, icon")
       .eq("active", true)
       .order("sort_order");
     if (error || !data || data.length === 0) return FALLBACK_OCCASIONS;

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/admin/require-admin";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ProvidersTable } from "@/components/admin/providers-table";
+import { AdminNav } from "@/components/admin/admin-nav";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -45,7 +46,8 @@ export default async function AdminPage() {
   return (
     <main className="flex-1 bg-secondary/20">
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-        <h1 className="font-heading text-3xl font-semibold">Administration</h1>
+        <AdminNav />
+        <h1 className="mt-6 font-heading text-3xl font-semibold">Administration</h1>
         <p className="mt-1 text-sm text-muted-foreground">Vue d&apos;ensemble MeloKado.</p>
 
         <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-5">

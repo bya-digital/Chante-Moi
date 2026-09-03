@@ -46,7 +46,13 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
     });
 
     if (statusResult.status !== "PROCESSING" && statusResult.status !== "PENDING" && songUserId) {
-      await finalizeMusicGeneration({ generationId: id, songId: generation.song_id, userId: songUserId, result: statusResult });
+      await finalizeMusicGeneration({
+        generationId: id,
+        songId: generation.song_id,
+        userId: songUserId,
+        providerId: generation.provider_id,
+        result: statusResult,
+      });
     }
 
     return NextResponse.json({

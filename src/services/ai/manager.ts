@@ -27,6 +27,8 @@ const alwaysActive: ProviderStatusChecker = { isActive: async () => true };
 export class AIManager {
   private providers: AIProvider[];
   private statusChecker: ProviderStatusChecker;
+  /** Provider ayant servi le dernier appel réussi — lu par l'appelant pour le cost tracking (section 18) */
+  lastUsedProviderId: string | null = null;
 
   constructor(providers?: AIProvider[], statusChecker?: ProviderStatusChecker) {
     this.providers = providers ?? [new OpenAIProvider(), new AnthropicProvider()];
@@ -52,7 +54,9 @@ export class AIManager {
     let lastError: unknown;
     for (const provider of providers) {
       try {
-        return await op(provider);
+        const result = await op(provider);
+        this.lastUsedProviderId = provider.id;
+        return result;
       } catch (err) {
         lastError = err;
       }

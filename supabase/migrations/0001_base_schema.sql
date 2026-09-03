@@ -583,27 +583,27 @@ insert into public.countries (code, name, default_currency_code, sort_order) val
   ('CD', 'RDC', 'USD', 9)
 on conflict (code) do nothing;
 
-insert into public.occasions (slug, name, icon, sort_order) values
-  ('anniversaire', 'Anniversaire', 'cake', 1),
-  ('amour', 'Déclaration d''amour', 'heart', 2),
-  ('mariage', 'Mariage', 'gem', 3),
-  ('naissance', 'Naissance', 'baby', 4),
-  ('maman', 'Pour maman', 'flower-2', 5),
-  ('papa', 'Pour papa', 'award', 6),
-  ('enfant', 'Pour un enfant', 'smile', 7),
-  ('hommage', 'Hommage', 'flame', 8),
-  ('merci', 'Merci', 'hand-heart', 9),
-  ('reussite', 'Réussite', 'trophy', 10),
-  ('fete', 'Fête', 'party-popper', 11),
-  ('gospel', 'Gospel', 'church', 12),
-  ('priere', 'Prière', 'book-open-text', 13),
-  ('demande-mariage', 'Demande en mariage', 'gem', 14),
-  ('saint-valentin', 'Saint-Valentin', 'heart-handshake', 15),
-  ('noel', 'Noël', 'gift', 16),
-  ('nouvel-an', 'Nouvel An', 'sparkles', 17),
-  ('entreprise', 'Entreprise', 'briefcase', 18),
-  ('autre', 'Autre', 'music', 19)
-on conflict (slug) do nothing;
+insert into public.occasions (slug, name, description, icon, sort_order) values
+  ('anniversaire', 'Anniversaire', 'Une chanson d''anniversaire unique, écrite à partir de votre histoire — pas un simple "joyeux anniversaire" générique.', 'cake', 1),
+  ('amour', 'Déclaration d''amour', 'Dites ce que les mots seuls ne suffisent pas à exprimer, en chanson.', 'heart', 2),
+  ('mariage', 'Mariage', 'Une chanson pour votre union, à écouter le jour J ou à offrir aux mariés.', 'gem', 3),
+  ('naissance', 'Naissance', 'Célébrez une naissance avec une chanson que l''enfant pourra garder toute sa vie.', 'baby', 4),
+  ('maman', 'Pour maman', 'Un merci en chanson pour la femme qui a tout donné.', 'flower-2', 5),
+  ('papa', 'Pour papa', 'Une chanson pour dire à votre père ce que vous ressentez.', 'award', 6),
+  ('enfant', 'Pour un enfant', 'Une chanson personnalisée rien que pour lui ou elle.', 'smile', 7),
+  ('hommage', 'Hommage', 'Rendez hommage à quelqu''un de cher, en musique.', 'flame', 8),
+  ('merci', 'Merci', 'Un merci qui se chante et qui reste.', 'hand-heart', 9),
+  ('reussite', 'Réussite', 'Célébrez un diplôme, une promotion, un succès.', 'trophy', 10),
+  ('fete', 'Fête', 'Une chanson pour animer et marquer votre fête.', 'party-popper', 11),
+  ('gospel', 'Gospel', 'Une chanson Gospel personnalisée, portée par une vraie voix chorale.', 'church', 12),
+  ('priere', 'Prière', 'Une prière mise en chanson, pour un moment de recueillement.', 'book-open-text', 13),
+  ('demande-mariage', 'Demande en mariage', 'Faites votre demande en musique — un souvenir pour toujours.', 'gem', 14),
+  ('saint-valentin', 'Saint-Valentin', 'Le cadeau de Saint-Valentin qu''on n''oublie pas.', 'heart-handshake', 15),
+  ('noel', 'Noël', 'Une chanson de Noël personnalisée pour toute la famille.', 'gift', 16),
+  ('nouvel-an', 'Nouvel An', 'Commencez l''année avec une chanson qui vous ressemble.', 'sparkles', 17),
+  ('entreprise', 'Entreprise', 'Jingle ou chanson d''entreprise pour votre marque ou événement.', 'briefcase', 18),
+  ('autre', 'Autre', 'Une occasion qui n''entre dans aucune case ? Racontez-la-nous.', 'music', 19)
+on conflict (slug) do update set description = excluded.description;
 
 insert into public.emotions (slug, name, sort_order) values
   ('emotionnel', 'Émotionnel', 1),

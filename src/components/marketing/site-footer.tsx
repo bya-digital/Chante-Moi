@@ -21,10 +21,10 @@ export function SiteFooter() {
           <div>
             <h3 className="text-sm font-semibold">Occasions</h3>
             <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-              <li><Link href="/chanson-anniversaire" className="hover:text-foreground">Chanson anniversaire</Link></li>
-              <li><Link href="/chanson-mariage" className="hover:text-foreground">Chanson mariage</Link></li>
-              <li><Link href="/chanson-amour" className="hover:text-foreground">Chanson d&apos;amour</Link></li>
-              <li><Link href="/chanson-gospel" className="hover:text-foreground">Chanson Gospel</Link></li>
+              <li><Link href="/chanson/anniversaire" className="hover:text-foreground">Chanson anniversaire</Link></li>
+              <li><Link href="/chanson/mariage" className="hover:text-foreground">Chanson mariage</Link></li>
+              <li><Link href="/chanson/amour" className="hover:text-foreground">Chanson d&apos;amour</Link></li>
+              <li><Link href="/chanson/gospel" className="hover:text-foreground">Chanson Gospel</Link></li>
             </ul>
           </div>
 

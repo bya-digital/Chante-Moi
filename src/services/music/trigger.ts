@@ -117,6 +117,7 @@ export async function triggerSongGeneration(songId: string): Promise<void> {
         generationId: generation.id,
         songId,
         userId: song.user_id,
+        providerId: handle.providerId,
         result: handle.immediateResult,
       });
     } else {
