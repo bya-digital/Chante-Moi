@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PaymentManager } from "@/services/payment/manager";
 import { triggerSongGeneration } from "@/services/music/trigger";
+import { notifyUser } from "@/services/notify-user";
 
 /**
  * Un paiement n'est JAMAIS considéré réussi sur la seule base du webhook brut (section 16) :
@@ -66,6 +67,12 @@ export async function POST(request: Request, context: { params: Promise<{ provid
           type: "purchase",
           amount: 1,
           order_id: attempt.order_id,
+        });
+        await notifyUser({
+          userId: order.user_id,
+          event: "payment_confirmed",
+          subject: "Paiement confirmé",
+          message: "Votre paiement est confirmé, votre chanson est en cours de création.",
         });
       }
 

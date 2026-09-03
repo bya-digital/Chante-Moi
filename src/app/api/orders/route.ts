@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit } from "@/services/rate-limit";
 
 const TIER_AMOUNTS_XOF: Record<string, number> = {
   basic: 500,
@@ -55,6 +56,11 @@ export async function POST(request: Request) {
 
   if (!user) {
     return NextResponse.json({ error: "Connexion requise pour créer une commande" }, { status: 401 });
+  }
+
+  const allowed = await checkRateLimit(`orders-create:${user.id}`, 10, 60 * 60);
+  if (!allowed) {
+    return NextResponse.json({ error: "Trop de commandes créées, réessayez plus tard" }, { status: 429 });
   }
 
   const [occasionId, emotionId, musicStyleId, voiceId] = await Promise.all([

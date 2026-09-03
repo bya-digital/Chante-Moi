@@ -5,12 +5,18 @@ import { dbProviderStatusChecker } from "@/services/provider-status";
 import { CostTracker } from "@/services/cost-tracker";
 import { TRANSCRIPTION_COST_XOF } from "@/services/cost-estimates";
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit, clientIp } from "@/services/rate-limit";
 
 export async function POST(request: Request) {
   const form = await request.formData().catch(() => null);
   const audio = form?.get("audio");
   if (!audio || !(audio instanceof Blob)) {
     return NextResponse.json({ error: "Fichier audio manquant" }, { status: 400 });
+  }
+
+  const allowed = await checkRateLimit(`story-transcribe:${clientIp(request)}`, 15, 10 * 60);
+  if (!allowed) {
+    return NextResponse.json({ error: "Trop de tentatives, réessayez dans quelques minutes" }, { status: 429 });
   }
 
   try {

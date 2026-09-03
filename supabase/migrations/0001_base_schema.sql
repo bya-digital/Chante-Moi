@@ -561,6 +561,21 @@ drop policy if exists "settings_admin_write" on public.settings;
 create policy "settings_admin_write" on public.settings for all using (public.is_admin(auth.uid())) with check (public.is_admin(auth.uid()));
 
 -- =========================================================
+-- 8b. Anti-abus (section 42) — pas de RLS policy = aucun accès client,
+--     uniquement lisible/écrivable via le client admin (service_role)
+-- =========================================================
+
+create table if not exists public.rate_limit_events (
+  id bigint generated always as identity primary key,
+  key text not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists rate_limit_events_key_created_idx on public.rate_limit_events (key, created_at);
+
+alter table public.rate_limit_events enable row level security;
+
+-- =========================================================
 -- 9. Seed — référentiels de départ (sections 9-11-12-46-47-48)
 -- =========================================================
 
